@@ -26,6 +26,7 @@ async function paginatedProducts(
         skip,
         take: limit,
         where: filter,
+        orderBy: { createdAt: "desc" },
       });
     console.log(skip);
     return { products, count };
@@ -49,15 +50,15 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 /**
- * @route GET /api/product/:categoryId
+ * @route GET /api/product/:categoryId/?l=number,p=umber
  * @desc Picks all the product of specific categoryId.
  */
 router.get("/:categoryId", async (req: Request, res: Response) => {
   try {
-    const products = await prisma.product.findMany({
-      where: { categoryId: parseInt(req.params.categoryId) },
+    const products = await paginatedProducts(req, {
+      categoryId: parseInt(req.params.categoryId),
     });
-    res.json({ products });
+    res.json(products);
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: "Something went wrong" });
